@@ -560,7 +560,10 @@ function redraw(time) {
             const p = [x,y];
 
             if(!is_visible_at(p)) {
-                continue;
+                ctx.globalAlpha = .2;
+            }
+            else {
+                ctx.globalAlpha = 1;
             }
 
             if(try_get_tile_at(state.layer_wall, p)) {
@@ -579,9 +582,16 @@ function redraw(time) {
         }
     }
 
-    if(is_visible_at(state.player.pos)) {
-        blit_img(images["guy"], state.player.pos[0], state.player.pos[1]);
+    if(!is_visible_at(state.player.pos)) {
+        ctx.globalAlpha = .2;
     }
+    else {
+        ctx.globalAlpha = 1;
+    }
+
+    blit_img(images["guy"], state.player.pos[0], state.player.pos[1]);
+
+    ctx.globalAlpha = 1;
 
     ctx.restore();
 
