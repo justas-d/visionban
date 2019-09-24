@@ -1013,9 +1013,30 @@ function cacheSeed(seed){
   return sound;
 }
 
+var sfxr_has_timeouts = false;
+let sfxr_timeouts = {};
+
+function sfxr_update_timeouts(dt) {
+    for(let key in sfxr_timeouts) {
+        sfxr_timeouts[key] -= dt;
+        if(sfxr_timeouts[key] <= 0) {
+            sfxr_timeouts[key] = 0;
+        }
+    }
+}
 
 function playSound(seed) {
-  console.log("boo"+seed);
+    if(sfxr_has_timeouts) {
+        if(sfxr_timeouts[seed] > 0) {
+            return;
+        }
+
+        sfxr_timeouts[seed] = .3;
+    }
+
+
+  console.log("sound seed",seed);
+
   if (muted){
     return;
   }

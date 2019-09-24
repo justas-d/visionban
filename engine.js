@@ -250,3 +250,93 @@ function get_mouse_pos(e) {
     return [x,y];
 }
 
+const COROUTINE_SLEEP_ID = 0;
+function coroutine_sleep(seconds) {
+    return [COROUTINE_SLEEP_ID, seconds];
+};
+
+let coroutines = [];
+function begin_coroutine(co) {
+    coroutines.push({
+        sleep_seconds: 0,
+        coroutine: co
+    });
+};
+
+const sleep = (ms) => new Promise(ok => setTimeout(ok, ms));
+
+function coroutines_tick(dt) {
+    if(coroutines.length > 0) {
+        let i = 0;
+        while(true) {
+
+            if(coroutines.length <= i) {
+                break;
+            }
+            const co = coroutines[i];
+
+            if(co.sleep_seconds > 0) {
+                co.sleep_seconds -= dt;
+                i += 1;
+            }
+            else {
+                const result = co.coroutine.next(dt);
+
+                if(result.done) {
+                    coroutines.splice(i, 1);
+                }
+                else {
+                    i += 1;
+
+                    if(Array.isArray(result.value)) {
+                        if(result.value[0] == COROUTINE_SLEEP_ID) {
+                            co.sleep_seconds = result.value[1];
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
+function evaluate_table(table) {
+
+    let total_score = 0;
+    for(const key in table) {
+        total_score += table[key];
+    }
+
+    if(total_score == 0) {
+        return 0;
+    }
+
+
+    const val = rng.random(0, total_score);
+
+    let min = 0;
+    let winner = "";
+    for(const key in table) {
+        let max = min + table[key];
+
+        if(min <= val && max > val) {
+            winner = key;
+            break;
+        }
+
+        min = max;
+    }
+
+    return winner;
+}
+
+function flip01(x) {
+    return 1 - x;
+}
+
+function square01(x) {
+    return x * x;
+}
+
+function cubic01(x) {
+    return x * x * x;
+}

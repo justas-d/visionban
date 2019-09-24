@@ -18,6 +18,7 @@ document.body.appendChild(canvas);
 masterVolume = .25;
 muted = false;
 unitTesting = false;
+sfxr_has_timeouts = true;
 
 let prev_time = 0;
 
@@ -33,6 +34,7 @@ let image_names = [
     "torch4",
     "rock",
     "finish",
+    "controls",
 ];
 let images = {};
 for(var i=0; i< image_names.length; i++) {
@@ -51,8 +53,11 @@ let CHAR_FINISH_AND_TORCH= '%';
 
 let levels = [
 
+    // NOTE(justas): intro
+    
 // NOTE(justas): ok
 `
+....................
 ....................
 ....................
 ..........@.........
@@ -66,7 +71,6 @@ let levels = [
 ....................
 ....................
 ....................
-....................
 `,
 
     // NOTE(justas): meh
@@ -75,11 +79,11 @@ let levels = [
 ....................
 ....................
 .....@@@@@@@@@@.....
-.....@........@.....
-.....@.t......@.....
 .....@........@@....
-.....@p.......f@....
-.....@.r......@@....
+.....@.t......f@....
+.....@.........@....
+.....@p.......@@....
+.....@.r......@.....
 .....@........@.....
 .....@@@@@@@@@@.....
 ....................
@@ -105,14 +109,136 @@ let levels = [
 ......@@@@@@@@@.....
 ....................
 `,
+    // NOTE(justas): meh
+
+`
+....................
+....................
+....................
+.....@@@@@@@@@@.....
+.....@...@@...@.....
+.....@.r.f..t.@.....
+.....@...@@...@.....
+.....@...@@@@@@@....
+....@@.........@@...
+....@f.r..p.tr.f@...
+....@@.........@@...
+.....@@@@@@@@@@@....
+....................
+....................
+`,
+
+    // NOTE(justas): good
+
+`
+....................
+....................
+....@@@@@@@.........
+....@@@@@@@@@@......
+....@....@...@......
+....@.tr.f.tp@......
+....@@.r.@...@......
+....@@@f.@@@@@......
+....@@@..@..........
+....@f.r.@..........
+....@@...@..........
+.....@@@@@..........
+....................
+....................
+`,
+
+
+    /*
+`
+....................
+....................
+.....@@@@@@.........
+.....@...@@.........
+.....@.t.@@.........
+.....@....@.........
+.....@....@@@@@@....
+.....@....@....@....
+....@@..@.p....@@...
+....@f.r..@.tr.f@...
+....@@....@....@@...
+.....@@@@@@@@@@@....
+....................
+....................
+`,
+*/
+
+
+    /*
+`
+....................
+....................
+.....@@@@@@@@@@@....
+.....@...@@....@....
+.....@.t.@@....@....
+.....@.........@....
+.....@.........@....
+.....@.........@....
+....@@....p....@@...
+....@f.r..@.tr.f@...
+....@@@@@@@@@@@@@...
+....................
+....................
+....................
+`,
+*/
+
+
+    /*
+`
+....................
+.........@@@@@......
+.........@...@......
+.........@.t.@......
+.........@...@......
+.........@.r.@......
+.........@...@......
+.....@@@@@@f@@......
+.....@.......@......
+.....@..rtr..@......
+.....@f..p..f@......
+.....@@@@@@@@@......
+....................
+....................
+....................
+`,
+*/
+
+    /*
+`
+....................
+.......@@@@@........
+.......@...@........
+.......@.t.@........
+.......@.r.@........
+.......@.r.@........
+.......@...@........
+.....@@@@f@@@@......
+.....@.......@......
+.....@..rt...@......
+.....@f..p..f@......
+.....@@@@@@@@@......
+....................
+....................
+....................
+`,
+*/
+
+
+    // NOTE(justas): l2
+
     // NOTE(justas): okay
 `
 ....................
 ....................
 ....................
-....@@@@@@@@@@......
+....@@@@@@..........
+....@...@@@@@@......
 ....@...@@.f.@......
-....@...@@...@......
 ....@.r.@@...@......
 ....@.p......@@@....
 ....@.r.@@....f@....
@@ -123,23 +249,25 @@ let levels = [
 ....................
 ....................
 `,
-    // NOTE(justas): meh
+
 `
-.......@@@@@........
-.......@...@........
-.......@r.f@........
-.......@...@........
-.......@...@........
-.......@...@........
-.......@..t@........
-.......@...@........
-.......@...@........
-.......@t..@........
-.......@...@........
-.......@fpr@........
-.......@...@........
-.......@@@@@........
+....................
+........@@@@@@......
+........@....@......
+........@.rt.@......
+........@@.r.@......
+.........@.r.@......
+.........@...@......
+.....@@@@@@f@@......
+.....@.......@......
+.....@.t.p...@......
+.....@f.....f@......
+.....@@@@@@@@@......
+....................
+....................
+....................
 `,
+
 
     // NOTE(justas): good
 `
@@ -175,39 +303,39 @@ let levels = [
 `,
     // NOTE(justas): ok
 `
-....................
-....................
-.....@@@@@@.........
-.....@....@@@.......
-.....@......@.......
-.....@.rrrrr@.......
-.....@.trrrr@.......
-.....@@..fff@.......
-......@.pfff@.......
-......@..fff@.......
-......@@@@@@@.......
-..........t.........
-....................
-....................
-....................
+...................
+...................
+......@@@@@@.......
+......@....@@@.....
+......@......@.....
+......@.rrrrr@.....
+......@.trrrr@.....
+......@@..fff@.....
+.......@.pfff@.....
+.......@..fff@.....
+.......@@@@@@@.....
+...........t.......
+...................
+...................
+...................
 `,
     // NOTE(justas): meh
 `
-....................
-....................
-.....@@@@@@.........
-.....@....@@@.......
-.....@..t...@.......
-....@@.rrrrr@.......
-....@..trrrr@.......
-....@.@..fff@.......
-....@.@.pfff@.......
-....@.@..fff@.......
-....@.......@.......
-....@@@@@@@@@.......
-....................
-....................
-....................
+...................
+...................
+.......@@@@@@......
+.......@....@@@....
+.......@..t...@....
+......@@.rrrrr@....
+......@..trrrr@....
+......@.@..fff@....
+......@.@.pfff@....
+......@.@..fff@....
+......@.......@....
+......@@@@@@@@@....
+...................
+...................
+...................
 `,
 
     // NOTE(justas): meh
@@ -215,14 +343,14 @@ let levels = [
 .................... 
 ....................
 ....................
-........@@@@@@@@....
-........@f@...f@....
-...@@@@@@.@....@....
-...@......@.t..@....
-...@...t@.f..r.@....
-...@.r.p..@..r.@....
-...@......@....@....
-...@@@@@@@@@@@@@....
+.........@@@@@@@@...
+.........@f@...f@...
+....@@@@@@.@....@...
+....@......@.t..@...
+....@...t@.f..r.@...
+....@.r.p..@..r.@...
+....@......@....@...
+....@@@@@@@@@@@@@...
 ....................
 ....................
 ....................
@@ -334,10 +462,35 @@ function pop_state() {
     states.splice(states.length - 1, 1);
 }
 
+function * co_fade(max_time, count_fn = null, done_fn = null) {
+    let time = max_time;
+
+    while(true) {
+        if(time <= 0) {
+            if(done_fn) {
+                done_fn();
+            }
+            break;
+        }
+        else {
+            time -= yield 0;
+            let t = time / max_time;
+            t = clamp(t, 0, 1);
+
+            if(count_fn) {
+                count_fn(t);
+            }
+        }
+    }
+}
+
 function load_level(idx) {
+    did_just_finish_level = false;
+
+    localStorage.setItem("level", idx);
     state.current_level_index = idx;
+
     const l = levels[idx];
-    log(idx);
 
     state.layer_wall = [];
     state.layer_vision = [];
@@ -416,12 +569,8 @@ function is_visible_at(p) {
     return state.layer_vision[idx] > 0;
 }
 
-load_level(0);
-
-let animation_time = 0;
 let framerate = 10;
 let prev_frame_idx = 0;
-
 
 function update() {
     state.layer_vision = [];
@@ -482,21 +631,78 @@ function update() {
             }
         }
 
-        if(matching != 0 && matching >= finish_count && matching_visible == matching) {
+        if(!did_just_finish_level &&
+            matching != 0 && 
+            matching >= finish_count && 
+            matching_visible == matching
+        ) {
+            did_just_finish_level = true;
             const next_level = (state.current_level_index + 1) % levels.length;
+
             if(next_level == 0) {
+                // TODO(justas): 
                 alert("winrar!");
             }
 
-            load_level(next_level);
-            update();
+            begin_coroutine(co_fade(1, (t) => {
+                render_alpha = square01(t);
+            }, () => {
+                begin_coroutine(co_fade(1, (t) => {
+                    render_alpha = square01(flip01(t));
+                }));
+
+                load_level(next_level);
+                update();
+            }));
+
+            playSound(52359700);
             return;
         }
     }
 
 }
 
+let is_in_main_menu = true;
+let did_just_finish_level = false;
+let main_menu_selected_index = 0;
+let blink_selected_main_menu_opt = false;
+let render_alpha = 1;
+
+function blit_img(img, x, y, sx = 1, sy = 1, r = 0) {
+    if(!img) {
+        return;
+    }
+    ctx.save();
+
+    ctx.translate(x * TILE_SCALE, y * TILE_SCALE);
+
+    if(r != 0) {
+        ctx.translate(sx * .5, sy * .5);
+        ctx.rotate(r);
+        ctx.translate(-sx * .5, -sy * .5);
+    }
+
+    ctx.scale(sx, sy);
+
+    ctx.drawImage(img, 0, 0);
+
+    ctx.restore();
+}
+
+function blit_anim(img_name, speed, count, x, y, sx = 1, sy = 1, r = 0) {
+    const idx = 1 + Math.floor((animation_time / speed) % count);
+    const img = images[img_name + String(idx)];
+    blit_img(img, x, y, sx, sy, r);
+}
+
+function blit_text(sz, style, txt, x, y) {
+    ctx.font = `${sz}px mainfont`;
+    ctx.fillStyle = style;
+    ctx.fillText(txt, x, y);
+}
+
 function redraw(time) {
+
     let dt = (time - prev_time) / 1000;
 
     if(prev_time === 0) {
@@ -509,91 +715,105 @@ function redraw(time) {
 
     let frame_idx = Math.floor(time / (1000 / framerate));
 
-    if(prev_frame_idx == frame_idx) {
-        requestAnimationFrame(redraw);
-        return;
-    }
+    sfxr_update_timeouts(dt);
+    coroutines_tick(dt);
 
-    prev_frame_idx = frame_idx;
-
-    const blit_img= (img, x, y, sx = 1, sy = 1, r = 0) => {
-        if(!img) {
-            return;
-        }
-        ctx.save();
-
-        ctx.translate(x * TILE_SCALE, y * TILE_SCALE);
-
-        if(r != 0) {
-            ctx.translate(sx * .5, sy * .5);
-            ctx.rotate(r);
-            ctx.translate(-sx * .5, -sy * .5);
-        }
-
-        ctx.scale(sx, sy);
-
-        ctx.drawImage(img, 0, 0);
-
-        ctx.restore();
+    const blit_bg = () => {
+        ctx.globalAlpha = 1;
+        ctx.clearRect(0, 0, cw, ch);
+        ctx.fillStyle = "#23262d";
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.globalAlpha = render_alpha;
     };
 
-    const blit_anim = (img_name, speed, count, x, y, sx = 1, sy = 1, r = 0) => {
-        const idx = 1 + Math.floor((animation_time / speed) % count);
-        const img = images[img_name + String(idx)];
-        blit_img(img, x, y, sx, sy, r);
-    };
+    if(is_in_main_menu) {
+        blit_bg();
 
-    const blit_text = (style, txt, x, y) => {
-        ctx.font = '32px m6x11';
-        ctx.fillStyle = style;
-        ctx.fillText(txt, x, y);
-    };
+        const sel_color = "#f6e3f2";
 
-    ctx.clearRect(0, 0, cw, ch);
-    ctx.fillStyle = "#23262d";
-    ctx.fillRect(0, 0, cw, ch);
+        blit_text(32, sel_color, "VISIONBAN", cw * .5 - 60, ch * .5 - 20);
+        blit_text(16, sel_color, "by Justas Dabrila", cw * .5 - 20, ch * .5 - 7);
 
-    ctx.save();
-
-    for(let y = 0; y < SIZE_Y; y += 1) {
-        for(let x = 0; x < SIZE_X; x += 1) {
-            const p = [x,y];
-
-            if(!is_visible_at(p)) {
-                ctx.globalAlpha = .2;
+        const get_col = (idx) => {
+            if(main_menu_selected_index == idx) {
+                if(blink_selected_main_menu_opt) {
+                    return "#b78b77";
+                }
+                return sel_color;
             }
             else {
-                ctx.globalAlpha = 1;
+                return "#3b6439";
             }
+        };
 
-            if(try_get_tile_at(state.layer_wall, p)) {
-                let idx = 1 + ((x + y) % 4);
-                blit_img(images["wall" + String(idx)], x, y);
-            }
-            if(try_get_tile_at(state.layer_finish, p)) {
-                blit_img(images["finish"], x, y);
-            }
-            if(try_get_tile_at(state.layer_torch, p)) {
-                blit_anim("torch", .1, 4, x, y);
-            }
-            if(try_get_tile_at(state.layer_rock, p)) {
-                blit_img(images["rock"], x, y);
-            }
+
+        if(state.current_level_index == 0) {
+            blit_text(16, get_col(0), "New Game", cw * .5 - 25, ch * .5 + 30);
         }
-    }
+        else {
+            blit_text(16, get_col(0), "Continue", cw * .5 - 25, ch * .5 + 30);
+            blit_text(16, get_col(1), "New Game", cw * .5 - 28, ch * .5 + 45);
+        }
 
-    if(!is_visible_at(state.player.pos)) {
-        ctx.globalAlpha = .2;
+        blit_anim("torch", .1, 4, 9.5, 2);
     }
     else {
-        ctx.globalAlpha = 1;
+
+        if(prev_frame_idx == frame_idx) {
+            requestAnimationFrame(redraw);
+            return;
+        }
+
+        prev_frame_idx = frame_idx;
+
+        blit_bg();
+
+        ctx.save();
+
+        for(let y = 0; y < SIZE_Y; y += 1) {
+            for(let x = 0; x < SIZE_X; x += 1) {
+                const p = [x,y];
+
+                if(!is_visible_at(p)) {
+                    ctx.globalAlpha = render_alpha * .2;
+                }
+                else {
+                    ctx.globalAlpha = render_alpha;
+                }
+
+                if(try_get_tile_at(state.layer_wall, p)) {
+                    let idx = 1 + ((x + y) % 4);
+                    blit_img(images["wall" + String(idx)], x, y);
+                }
+                if(try_get_tile_at(state.layer_finish, p)) {
+                    blit_img(images["finish"], x, y);
+                }
+                if(try_get_tile_at(state.layer_torch, p)) {
+                    blit_anim("torch", .1, 4, x, y);
+                }
+                if(try_get_tile_at(state.layer_rock, p)) {
+                    blit_img(images["rock"], x, y);
+                }
+            }
+        }
+
+        if(!is_visible_at(state.player.pos)) {
+            ctx.globalAlpha = render_alpha * .2;
+        }
+        else {
+            ctx.globalAlpha = render_alpha;
+        }
+
+        blit_img(images["guy"], state.player.pos[0], state.player.pos[1]);
+
+        if(state.current_level_index == 0) {
+            blit_img(images["controls"], 7, 0);
+        }
+
+        ctx.globalAlpha = render_alpha;
+
+        ctx.restore();
     }
-
-    blit_img(images["guy"], state.player.pos[0], state.player.pos[1]);
-
-    ctx.globalAlpha = 1;
-
-    ctx.restore();
 
     requestAnimationFrame(redraw);
 }
@@ -602,7 +822,7 @@ function is_solid_at(p) {
     return false;
 }
 
-function try_push(pos, delta) {
+function try_push(pos, delta, did_push) {
     const layers = [
         state.layer_torch,
         state.layer_rock
@@ -623,12 +843,13 @@ function try_push(pos, delta) {
                 return false;
             }
 
-            if(!try_push(new_pos, delta)) {
+            if(!try_push(new_pos, delta, did_push)) {
                 return false;
             }
 
             remove_tile(layer, pos);
             set_tile(layer, new_pos, tile);
+            did_push.did = true;
 
             return true;
         }
@@ -654,39 +875,151 @@ function try_walk_guy(delta) {
         return;
     }
 
-    if(try_push(new_pos, delta)) {
+    let did_push = {did: false};
+    if(try_push(new_pos, delta, did_push)) {
         states.push(old_state);
         state.player.pos = new_pos;
+
+        if(did_push.did) {
+            let table = {
+                snd1: 1,
+                snd2: 1,
+                snd3: 1,
+            };
+
+            let result = evaluate_table(table);
+
+            if(result == "snd1") {
+                playSound(81843707);
+            }
+            else if(result == "snd2") {
+                playSound(58267107);
+            }
+            else if(result == "snd3") {
+                playSound(20058707);
+            }
+        }
+    }
+    else {
+        let table = {
+            snd1: 1,
+            snd2: 1
+        };
+
+        let result = evaluate_table(table);
+
+        if(result == "snd1") {
+            playSound(93417104);
+        }
+        else if(result == "snd2") {
+            playSound(15655904);
+        }
+    }
+
+    let table = {
+        snd1: 1,
+        snd2: 1,
+        snd3: 1,
+    };
+
+    let result = evaluate_table(table);
+
+    if(result == "snd1") {
+        playSound(32905307);
+    }
+    else if(result == "snd2") {
+        playSound(39368507);
+    }
+    else if(result == "snd3") {
+        playSound(36528507);
     }
 
     update();
+}
+
+function begin_playing() {
+
+    begin_coroutine(co_fade(1, (t) => {
+        render_alpha = cubic01(t);
+
+    }, () => {
+        is_in_main_menu = false;
+        update();
+        begin_coroutine(co_fade(.5, (t) => {
+            render_alpha = square01(flip01(t));
+        }));
+    }));
+}
+
+function move_main_menu_cursor(delta) {
+    const play_move_snd = () => playSound(40086906);
+    const play_block_snd = () => playSound(64503704);
+
+    if(state.current_level_index == 0) {
+        play_block_snd();
+    }
+    else {
+        if(main_menu_selected_index == 0) {
+            if(delta == -1) {
+                play_block_snd();
+            }
+            else {
+                play_move_snd();
+                main_menu_selected_index = 1;
+            }
+        }
+        else {
+            if(delta == 1) {
+                play_block_snd();
+            }
+            else {
+                play_move_snd();
+                main_menu_selected_index = 0;
+            }
+        }
+    }
 }
 
 function update_key(e, is_down) {
     let ret = true;
 
     if(e.key == "w" || e.key == "W" || e.key == "ArrowUp") {
-        if(is_down) try_walk_guy([0, -1]);
-        ret = false;
+        if(is_down) {
+            if(is_in_main_menu) {
+                move_main_menu_cursor(-1);
+            }
+            else {
+                try_walk_guy([0, -1]);
+            }
+            ret = false;
+        }
     }
 
     if(e.key == "s" || e.key == "S" || e.key == "ArrowDown") {
-        if(is_down) try_walk_guy([0, 1]);
-        ret = false;
+        if(is_down) {
+            if(is_in_main_menu) {
+                move_main_menu_cursor(1);
+            }
+            else {
+                try_walk_guy([0, 1]);
+            }
+
+            ret = false;
+        }
     }
 
     if(e.key == "a" || e.key == "A" || e.key == "ArrowLeft") {
-        if(is_down) try_walk_guy([-1, 0]);
+        if(is_down && !is_in_main_menu) try_walk_guy([-1, 0]);
         ret = false;
     }
 
     if(e.key == "d" || e.key == "D" || e.key == "ArrowRight") {
-        if(is_down) try_walk_guy([1, 0]);
+        if(is_down && !is_in_main_menu) try_walk_guy([1, 0]);
         ret = false;
     }
 
     if(e.key == "r" || e.key == "R") {
-        if(is_down) {
+        if(is_down && !is_in_main_menu) {
             push_state();
 
             load_level(state.current_level_index);
@@ -696,11 +1029,43 @@ function update_key(e, is_down) {
     }
 
     if(e.key == "z" || e.key == "Z") {
-        if(is_down) {
+        if(is_down && !is_in_main_menu) {
             pop_state();
             update();
         }
         ret = false;
+    }
+
+    if(is_in_main_menu) {
+        if(e.key == "x" || e.key == "X" || e.key == "Enter") {
+            if(is_down) {
+
+                playSound(57048103);
+
+                function * co_blink() {
+                    for(let i = 0; i < 20; i++) {
+                        blink_selected_main_menu_opt = !blink_selected_main_menu_opt;
+                        yield coroutine_sleep(.05);
+
+                        if(i == 5) {
+                            if(main_menu_selected_index == 0) {
+                                begin_playing();
+                            }
+                            else if(main_menu_selected_index == 1) {
+                                load_level(0);
+                                begin_playing();
+                            }
+                        }
+                    }
+                    blink_selected_main_menu_opt = false;
+
+                };
+
+                begin_coroutine(co_blink());
+
+                ret = false;
+            }
+        }
     }
 
     if(!ret) {
@@ -718,15 +1083,16 @@ function keydown(e) {
     update_key(e, true);
 }
 
-function reset_game() {
-}
-
-function on_pointer_up(e) {
-}
-
 document.body.addEventListener("keyup",keyup);
 document.body.addEventListener("keydown",keydown);
-document.body.addEventListener("pointerup",on_pointer_up);
+
+state.current_level_index = parseInt(localStorage.getItem("level"));
+
+if(Number.isNaN(state.current_level_index)) {
+	state.current_level_index = 0;
+}
+
+load_level(state.current_level_index);
 
 update();
 requestAnimationFrame(redraw);
