@@ -585,9 +585,6 @@ var generatorNames = [
 'birdSound'
 ];
 
-/*
-i like 9675111
-*/
 function generateFromSeed (seed) {
   sfxr_rng = new RNG((seed / 100) | 0);
   var generatorindex = seed % 100;
@@ -979,16 +976,14 @@ window.console.log(psstring);*/
   return sound;
 };
 
-// if (typeof exports != 'undefined') {
-//   // For node.js
-//   // var RIFFWAVE = require('./riffwave').RIFFWAVE;
-//   // exports.Params = Params;
-//   // exports.generate = generate;
-// }
-
 var sfxCache = {};
 var cachedSeeds = [];
 var CACHE_MAX = 50;
+
+function sfxr_clear_cache() {
+    sfxCache = [];
+    cachedSeeds = [];
+}
 
 function cacheSeed(seed){
   if (seed in sfxCache) {
@@ -1015,6 +1010,7 @@ function cacheSeed(seed){
 
 var sfxr_has_timeouts = false;
 let sfxr_timeouts = {};
+let sfxr_timeout_interval = .3;
 
 function sfxr_update_timeouts(dt) {
     for(let key in sfxr_timeouts) {
@@ -1031,7 +1027,7 @@ function playSound(seed) {
             return;
         }
 
-        sfxr_timeouts[seed] = .3;
+        sfxr_timeouts[seed] = sfxr_timeout_interval;
     }
 
 
@@ -1046,50 +1042,3 @@ function playSound(seed) {
   sound.play();
 }
 
-
-
-function killAudioButton(){
-  var mb = document.getElementById("muteButton");
-  var umb = document.getElementById("unMuteButton");
-  if (mb){
-    mb.remove();
-    umb.remove();
-  }
-}
-
-function showAudioButton(){
-  var mb = document.getElementById("muteButton");
-  var umb = document.getElementById("unMuteButton");
-  if (mb){
-    mb.style.display="block"; 
-    umb.style.display="none";
-  }
-}
-
-
-function toggleMute() {
-  if (muted===0){
-    muteAudio();
-  } else {
-    unMuteAudio();
-  }
-}
-
-function muteAudio() {
-  muted=1; 
-  var mb = document.getElementById("muteButton");
-  var umb = document.getElementById("unMuteButton");
-  if (mb){
-    mb.style.display="none"; 
-    umb.style.display="block";
-  }
-}
-function unMuteAudio() {
-  muted=0; 
-  var mb = document.getElementById("muteButton");
-  var umb = document.getElementById("unMuteButton");
-  if (mb){
-    mb.style.display="block"; 
-    umb.style.display="none";
-  }
-}
