@@ -69,6 +69,7 @@ let image_names = [
     "controls2",
     "win",
     "thanks",
+    "invisible",
 ];
 
 let images_loaded = {"font": false};
@@ -691,6 +692,15 @@ function redraw(time) {
     else if(is_in_main_menu) {
         blit_bg();
 
+        for(let y = 0; y < SIZE_Y; y += 1) {
+            for(let x = 0; x < SIZE_X; x += 1) {
+                ctx.globalAlpha = render_alpha * .08;
+                blit_img(images["invisible"], x, y);
+            }
+        }
+
+        ctx.globalAlpha = render_alpha;
+
         blit_text(32, sel_color, "VISIONBAN", cw * .5 - 60, ch * .5 - 20);
         blit_text(16, sel_color, "by Justas Dabrila", cw * .5 - 25, ch * .5 - 7);
 
@@ -736,6 +746,9 @@ function redraw(time) {
                 const p = [x,y];
 
                 if(!is_visible_at(p)) {
+                    ctx.globalAlpha = render_alpha * .08;
+                    blit_img(images["invisible"], x, y);
+
                     ctx.globalAlpha = render_alpha * .2;
                 }
                 else {
